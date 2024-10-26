@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyde Park/South Shore All Stars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        /* Flexbox layout for image and table */
+        .content {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        .data {
+            margin-right: 20px;
+            border-collapse: collapse;
+            width: 50%; /* Adjust width for better layout */
+        }
+
+        .data th, .data td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .data th {
+            background-color: #f2f2f2;
+        }
+
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dunk-image {
+            max-width: 40%; /* Resize the image */
+            height: auto;
+            border: 2px solid black;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hyde Park/South Shore All Stars</h1>
+
+    <!-- Flexbox container for the image and win count table -->
+    <div class="content">
+        <table class="data">
+            {{ tables[0] | safe }}
+        </table>
+
+        <div class="image-container">
+            <img class="dunk-image" src="{{ url_for('static', filename='pippen_dunk.jpg') }}" 
+                 alt="Scottie Pippen dunking over Patrick Ewing">
+
+            <!-- Display the leader/loser message below the image -->
+            <p><strong>{{ message }}</strong></p>
+        </div>
+    </div>
+
+    <!-- Team win/loss data table -->
+    <h2>{{ titles[1] }}</h2>
+    {{ tables[1] | safe }}
+</body>
+</html>
