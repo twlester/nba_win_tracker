@@ -32,21 +32,21 @@ def calculate_owner_wins(standings_df):
     """Calculate total wins by owner."""
     data = {
         "Team": [
-            "Philadelphia 76ers", "Milwaukee Bucks", "Chicago Bulls", 
-            "Cleveland Cavaliers", "Boston Celtics", "Los Angeles Clippers", 
-            "Memphis Grizzlies", "Atlanta Hawks", "Miami Heat", 
-            "Charlotte Hornets", "Utah Jazz", "Sacramento Kings", 
-            "New York Knicks", "Los Angeles Lakers", "Orlando Magic", 
-            "Dallas Mavericks", "Brooklyn Nets", "Denver Nuggets", 
-            "Indiana Pacers", "New Orleans Pelicans", "Detroit Pistons", 
-            "Toronto Raptors", "Houston Rockets", "San Antonio Spurs", 
-            "Phoenix Suns", "Oklahoma City Thunder", "Minnesota Timberwolves", 
+            "Philadelphia 76ers", "Milwaukee Bucks", "Chicago Bulls",
+            "Cleveland Cavaliers", "Boston Celtics", "Los Angeles Clippers",
+            "Memphis Grizzlies", "Atlanta Hawks", "Miami Heat",
+            "Charlotte Hornets", "Utah Jazz", "Sacramento Kings",
+            "New York Knicks", "Los Angeles Lakers", "Orlando Magic",
+            "Dallas Mavericks", "Brooklyn Nets", "Denver Nuggets",
+            "Indiana Pacers", "New Orleans Pelicans", "Detroit Pistons",
+            "Toronto Raptors", "Houston Rockets", "San Antonio Spurs",
+            "Phoenix Suns", "Oklahoma City Thunder", "Minnesota Timberwolves",
             "Portland Trail Blazers", "Golden State Warriors", "Washington Wizards"
         ],
         "Owner": [
-            "Chris", "Ben", "Dan", "Dan", "Alex", "Ben", "Alex", "Alex", "Bill", 
-            "Dan", "Ben", "Alex", "Dan", "Ben", "Dan", "Bill", "Bill", "Bill", 
-            "Ben", "Dan", "Chris", "Chris", "Chris", "Alex", "Chris", "Ben", 
+            "Chris", "Ben", "Dan", "Dan", "Alex", "Ben", "Alex", "Alex", "Bill",
+            "Dan", "Ben", "Alex", "Dan", "Ben", "Dan", "Bill", "Bill", "Bill",
+            "Ben", "Dan", "Chris", "Chris", "Chris", "Alex", "Chris", "Ben",
             "Chris", "Bill", "Bill", "Alex"
         ]
     }
@@ -57,16 +57,20 @@ def calculate_owner_wins(standings_df):
 
     # Calculate wins by owner
     owner_win_counts = merged_df.groupby("Owner")["Wins"].sum().reset_index()
+
+    # Sort the owner win counts by total wins in descending order
     owner_win_counts = owner_win_counts.sort_values(by="Wins", ascending=False)
-    return owner_win_counts
+
+    return merged_df, owner_win_counts
 
 @app.route("/")
 def home():
-    # Fetch the latest standings data
+    # Fetch the latest standings data and calculate owner wins
     standings_df = fetch_nba_standings()
+    merged_df, owner_win_counts = calculate_owner_wins(standings_df)
 
-    # Calculate wins by owner
-    owner_win_counts = calculate_owner_wins(standings_df)
+    # Sort the merged team standings table by total wins in descending order
+    merged_df = merged_df.sort_values(by="Wins", ascending=False)
 
     # Get the leader and loser
     leader = owner_win_counts.iloc[0]["Owner"]
@@ -79,10 +83,10 @@ def home():
     return render_template(
         "index.html",
         tables=[owner_win_counts.to_html(classes='data', index=False),
-                standings_df.to_html(classes='data', index=False)],
-        titles=["Owner Win Counts", "Team Win/Loss Data"],
+                merged_df.to_html(classes='data', index=False)],
+        titles=["Owner Win Counts", "Team Win/Loss Data with Owners"],
         message=message
     )
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=False)
