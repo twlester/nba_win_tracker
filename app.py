@@ -16,7 +16,7 @@ def fetch_nba_standings():
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
 
-    # Extract and format standings data
+    # Extract and format unique standings data
     standings_list = data['response'][0]
     standings_df = pd.DataFrame([
         {
@@ -25,11 +25,13 @@ def fetch_nba_standings():
             "Losses": team['games']['lose']['total']
         }
         for team in standings_list
-    ])
+    ]).drop_duplicates(subset=["Team"])  # Ensure no duplicate teams
+
     return standings_df
 
 def calculate_owner_wins(standings_df):
     """Calculate total wins by owner."""
+    # Data with teams and their owners
     data = {
         "Team": [
             "Philadelphia 76ers", "Milwaukee Bucks", "Chicago Bulls",
@@ -52,10 +54,10 @@ def calculate_owner_wins(standings_df):
     }
     owners_df = pd.DataFrame(data)
 
-    # Merge standings with ownership data
+    # Merge standings with ownership data (inner join ensures matching teams only)
     merged_df = pd.merge(standings_df, owners_df, on="Team", how="inner")
 
-    # Calculate wins by owner
+    # Calculate total wins by owner
     owner_win_counts = merged_df.groupby("Owner")["Wins"].sum().reset_index()
 
     # Sort the owner win counts by total wins in descending order
